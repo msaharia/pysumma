@@ -58,6 +58,7 @@ if __name__ == "__main__":
 
         ncconcat_time = xr.open_mfdataset(timefilelist, concat_dim='time')     #Concatenates by time
         ncconcat_time = ncconcat_time.sortby('time')                           #Sorts by time
+        ncconcat_time['hruId'] = ncconcat_time['hruId'].isel(time=0, drop=True)  #Dropping extra time dimension from hruId
 
         print('Concatenating GRUset '+str(x)+ ' of ' + str(len(slist)))
         timeconcatfile = os.path.join(concatdir, (gruset[x]+'.nc'))
@@ -68,7 +69,8 @@ if __name__ == "__main__":
     spacefilelist = glob.glob(concatdir+'/*.nc')
     spacefilelist.sort()
     print('Concatenating by HRU space')
-    ncconcat_space = xr.open_mfdataset(spacefilelist)
+    ncconcat_space = xr.open_mfdataset(spacefilelist, concat_dim='hru')
+    ncconcat_space['hruId'] = ncconcat_space['hruId'].isel(time=0, drop=True)  #Dropping extra time dimension from hruId
 
     finalfilename = os.path.join(concatdir, finalfile)
     ncconcat_space.to_netcdf(finalfilename, 'w')
