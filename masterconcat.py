@@ -33,7 +33,7 @@ if __name__ == "__main__":
         ncconvert['averageInstantRunoff'].attrs['long_name'] = "instantaneous runoff (instant)"
         ncconvert['averageInstantRunoff'].attrs['units'] = '-'
 
-        print('Creating '+str(x+1)+ ' HRU-only SUMMA output file out of ' + str(len(outfilelist)))
+        print('Step 1: Creating '+str(x+1)+ ' HRU-only SUMMA output file out of ' + str(len(outfilelist)))
         ncconvert_outfile = os.path.join(convertdir, os.path.basename(outfilelist[x]))#Create an output filename
         ncconvert.to_netcdf(ncconvert_outfile, 'w')                                  #Write out the final netCDF file
 
@@ -60,7 +60,7 @@ if __name__ == "__main__":
         ncconcat_time = ncconcat_time.sortby('time')                           #Sorts by time
         ncconcat_time['hruId'] = ncconcat_time['hruId'].isel(time=0, drop=True)  #Dropping extra time dimension from hruId
 
-        print('Concatenating GRUset '+str(x)+ ' of ' + str(len(slist)))
+        print('Step 2: Concatenating GRUset '+str(x)+ ' of ' + str(len(slist)))
         timeconcatfile = os.path.join(concatdir, (gruset[x]+'.nc'))
         ncconcat_time.to_netcdf(timeconcatfile, 'w')
 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     spacefilelist = glob.glob(concatdir+'/*.nc')
     spacefilelist.sort()
-    print('Concatenating by HRU space')
+    print('Step 3: Concatenating by HRU space')
     ncconcat_space = xr.open_mfdataset(spacefilelist, concat_dim='hru')
     ncconcat_space['hruId'] = ncconcat_space['hruId'].isel(time=0, drop=True)  #Dropping extra time dimension from hruId
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     #Part 4: Concatenate the trailing restart file for starting another SUMMA run
     restartfilelist = glob.glob((outdir+'/*{}*.nc').format(restartstring))
     restartfilelist.sort()
-    print('Concatenating Restart files by HRU space')
+    print('Step 4: Concatenating Restart files by HRU space')
 
     restartconcat = xr.open_mfdataset(restartfilelist, concat_dim='hru')
     restartoutfile = os.path.join(concatdir, restartfile)
